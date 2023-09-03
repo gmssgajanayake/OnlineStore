@@ -1,3 +1,6 @@
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 public class OnlineStore {
 
     private Product[] store;
@@ -7,7 +10,7 @@ public class OnlineStore {
     }
 
     // Add some new products to store
-    public void addProduct(Product product) {
+    public void addProduct(@NotNull Product product) {
         // Before adding the product check whether the given ID is unique or not for that particular product
         if (isValidProductId(product.getId())) {
             // Error message --> The ID already has been used
@@ -22,9 +25,9 @@ public class OnlineStore {
 
     // Change the quantity by using the product ID
     public void updateQuantity(int productId, int newQuantity) {
-        for (int i = 0; i < store.length; i++) {
-            if (store[i].getId() == productId) {
-                store[i].setQuantity(newQuantity);
+        for (Product product : store) {
+            if (product.getId() == productId) {
+                product.setQuantity(newQuantity);
                 // Prints a message saying, that product quantity was successfully changed
                 System.out.println(response(true));
                 return;
@@ -36,18 +39,18 @@ public class OnlineStore {
 
     // Print all products details
     public String displayInventory() {
-        String storeData = "";
+        StringBuilder storeData = new StringBuilder();
         for (int i = 0; i < store.length; i++) {
-            storeData += "\n\t" + (i + 1) + ") " + store[i].displayInfo() + "\n";
+            storeData.append("\n\t").append(i + 1).append(") ").append(store[i].displayInfo()).append("\n");
         }
         return "Our Inventory - \n" + storeData;
     }
 
     // Prints a product details by their name
     public String searchProductByName(String productName) {
-        for (int i = 0; i < store.length; i++) {
-            if (store[i].getName().equalsIgnoreCase(productName)) {
-                return store[i].displayInfo();
+        for (Product product : store) {
+            if (product.getName().equalsIgnoreCase(productName)) {
+                return product.displayInfo();
             }
         }
         return "Your searched product is not here";
@@ -56,23 +59,24 @@ public class OnlineStore {
     // Calculate the total value of the store
     public double calculateTotalValue() {
         double total = 0.0;
-        for (int i = 0; i < store.length; i++) {
-            total += store[i].getQuantity() * store[i].getPrice();
+        for (Product product : store) {
+            total += product.getQuantity() * product.getPrice();
         }
         return total;
     }
 
     // Before adding the product check whether the given ID is unique or not for that particular product
     private boolean isValidProductId(int id) {
-        for (int i = 0; i < store.length; i++) {
-            if (store[i].getId() == id) {
+        for (Product product : store) {
+            if (product.getId() == id) {
                 return true;
             }
         }
         return false;
     }
 
-    private String response(boolean res) {
+    @Contract(pure = true)
+    private @NotNull String response(boolean res) {
         return res ? "Successfully" : "Try again";
     }
 
@@ -80,9 +84,7 @@ public class OnlineStore {
     private void upStoreSize() {
         Product[] tempStore = store;
         store = new Product[tempStore.length + 1];
-        for (int i = 0; i < tempStore.length; i++) {
-            store[i] = tempStore[i];
-        }
+        System.arraycopy(tempStore, 0, store, 0, tempStore.length);
     }
 
 }
